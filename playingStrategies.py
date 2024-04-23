@@ -2,6 +2,7 @@ import math
 
 infinity = math.inf
 
+
 def cache1(function):
     "Like lru_cache(None), but only considers the first argument of function."
     cache = {}
@@ -27,18 +28,19 @@ pawn4line = {
     4: 0,
     5: 0,
     6: 0,
-    7: 0,  #Linea Centrale
+    7: 0,  # Linea Centrale
     8: 7,
     9: 6,
     10: 5,
     11: 3,
     12: 2,
     13: 2,
-    14: 1
+    14: 1,
 }
-defensive_line=8
+defensive_line = 8
 attacking_line = 8
 last_line = 14
+
 
 def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
     """Search game to determine best action; use alpha-beta pruning.
@@ -47,7 +49,15 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
     player = state.to_move
 
     @cache1
-    def max_value(state, alpha, beta, depth, action_considerata, stato_precedente, defensive_line=defensive_line):
+    def max_value(
+        state,
+        alpha,
+        beta,
+        depth,
+        action_considerata,
+        stato_precedente,
+        defensive_line=defensive_line,
+    ):
         if game.is_terminal(state):
             return game.utility(state, player), None
         if cutoff(game, state, depth):
@@ -65,8 +75,8 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
             pawn4line[move[2][0]] += 1
             pawn4line[move[1][0]] -= 1
 
-        if pawn4line[defensive_line] < pawn4line[defensive_line+1]:
-            defensive_line+=1
+        if pawn4line[defensive_line] < pawn4line[defensive_line + 1]:
+            defensive_line += 1
             print(defensive_line)
 
         return v, move
@@ -101,6 +111,4 @@ def h(board_precedente, board, game, player, action_considerata):
             return 0.6
         else:
             return 0.4
-    return 0 #Se non puo' catturare tutte ugual peso //TODO
-
-
+    return 0  # Se non puo' catturare tutte ugual peso //TODO
