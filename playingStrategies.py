@@ -92,11 +92,15 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
 
 
 def h(board_precedente, board, game, player, action_considerata):
-    total_value = 0
-
+    partenza = action_considerata[1]
+    arrivo = action_considerata[2]
     if "capturing" in action_considerata:
-        if action_considerata[1][0] < action_considerata[2][0]:
-            total_value += 0.7
-        elif action_considerata[1][0] > action_considerata[2][0]:
-            total_value += 0.5
-    return total_value
+        if arrivo[0] > partenza[0]:
+            return 0.8
+        elif arrivo[0] == partenza[0]:
+            return 0.6
+        else:
+            return 0.4
+    return 0 #Se non puo' catturare tutte ugual peso //TODO
+
+
