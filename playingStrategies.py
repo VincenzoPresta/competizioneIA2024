@@ -112,6 +112,13 @@ def h(board, player, action_considerata):
                 return 0.6
             else:
                 return 0.4
-        """implementare la difesa, gestire l'exchange con la divisione in 4 """
+        else:
+            if arrivo[0] > partenza[0]:
+                return 0.7
+            elif arrivo[0] == partenza[0]:
+                return 0.9  # prediligi il mangiare orizzontalmente
+            else:
+                return 0.3
 
+    """gestire l'exchange con la divisione in 4"""
     return 0  # Se non puo' catturare tutte ugual peso //TODO
