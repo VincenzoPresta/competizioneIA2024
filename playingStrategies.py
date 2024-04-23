@@ -43,7 +43,7 @@ attacking_line = 8
 last_line = 14
 
 
-def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
+def h_alphabeta_search(game, state, cutoff=cutoff_depth(2)):
     """Search game to determine best action; use alpha-beta pruning.
     As in [Figure 5.7], this version searches all the way to the leaves."""
 
@@ -63,12 +63,17 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
                 alpha = max(alpha, v)
             if v >= beta:
                 return v, move
-            if "exchange" not in move:
-                pawn4line[move[2][0]] += 1
-                pawn4line[move[1][0]] -= 1
-            if pawn4line[defensive_line] < pawn4line[defensive_line + 1]:
-                defensive_line += 1
-                print("defensive line:" + str(defensive_line))
+        
+        if "exchange" not in move:
+            pawn4line[move[2][0]] += 1
+            pawn4line[move[1][0]] -= 1
+
+        attacking_pawn_alive = 0
+        for i in range (0,defensive_line):
+            attacking_pawn_alive+=pawn4line[i]
+        if attacking_pawn_alive==0:
+            defensive_line += 1
+            print("defensive line:" + str(defensive_line))
         return v, move
 
     @cache1
@@ -94,13 +99,13 @@ def h(board, player,action_considerata):
     partenza = action_considerata[1]
     arrivo = action_considerata[2]
     if "capturing" in action_considerata:
-        if partenza[0] <= 4:
+        if partenza[0] <= 3:
             return 0.85
-        if partenza[0] > defensive_line:
+        if partenza[0] < defensive_line:
             if arrivo[0] > partenza[0]:
                 return 0.8
             elif arrivo[0] == partenza[0]:
                 return 0.6
             else:
                 return 0.4
-    return 0 #Se non puo' catturare tutte ugual peso //TODOO
+    return 0 #Se non puo' catturare tutte ugual peso //TODO
