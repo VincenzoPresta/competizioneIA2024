@@ -13,7 +13,8 @@ To ensure you're working on the correct branch, follow these steps:
   
   2. Check the current branch: Use the "git branch" command to view the list of available branches and identify the currently active branch. The active branch will be highlighted or marked with an asterisk (*).
 
-<h3>Switch to the desired branch</h3>. 
+<h3>Switch to the desired branch</h3>
+
 To switch to the desired branch, use the "git checkout" command followed by the branch name:
 
 ```git checkout <branch-name>```
