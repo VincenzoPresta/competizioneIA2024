@@ -16,7 +16,7 @@ To switch to the desired branch, use the "git checkout" command followed by the 
 
 ```git checkout <branch-name>```
 
-Verify the branch change: After switching branches, re-run the git branch command to confirm that you're now on the correct branch.
+Verify the branch change: After switching branches, re-run the "git branch" command to confirm that you're now on the correct branch.
 
 ```git branch```
 
