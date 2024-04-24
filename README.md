@@ -8,7 +8,9 @@ This will create a new directory called competizioneIA2024 on your computer. You
 
 <h2>Make changes</h2>
 To ensure you're working on the correct branch, follow these steps:
+  
   1. Identify the branch you want to work on: Determine the specific branch you need to access or contribute to. This branch might be named based on a feature, task, or bug fix.
+  
   2. Check the current branch: Use the "git branch" command to view the list of available branches and identify the currently active branch. The active branch will be highlighted or marked with an asterisk (*).
 
 <h3>Switch to the desired branch</h3>. 
