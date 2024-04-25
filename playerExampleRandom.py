@@ -1,5 +1,5 @@
 
-#import playingStrategies
+import playingStrategies
 import random
 import game
 #from board import Board,draw_board
@@ -16,6 +16,10 @@ import game
 
 # The third argument is for debugging (it's a log of choices)
 def playerStrategy (game,state):
-    return random.choice(list(game.actions(state)))
+    cutOff = 2
+    value,move = playingStrategies.h_alphabeta_search_adv(game,state,playingStrategies.cutoff_depth(cutOff))
+  
+    return move
+    #return random.choice(list(game.actions(state)))
 
 
