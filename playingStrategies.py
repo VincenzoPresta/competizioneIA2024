@@ -19,7 +19,6 @@ def cutoff_depth(d):
     """A cutoff function that searches to depth d."""
     return lambda game, state, depth: depth > d
 
-
 pawn4line = {
     0: 0,
     1: 0,
@@ -41,7 +40,6 @@ pawn4line = {
 defensive_line = 9
 last_line = 14
 kingAdv_position = (0, 7)
-
 
 def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
     """Search game to determine best action; use alpha-beta pruning.
@@ -72,9 +70,11 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
             pawn4line[move[1][0]] -= 1
 
         attacking_pawn_alive = 0
-        for i in range(0, defensive_line):
-            attacking_pawn_alive += pawn4line[i]
-        if attacking_pawn_alive == 0 or pawn4line[defensive_line] == 0:
+        for r in range(0,defensive_line):
+            for c in range (7-r,7+r+1,2):
+                if state[(r,c)]=='o':
+                    attacking_pawn_alive += 1
+        if attacking_pawn_alive == 0 or pawn4line[defensive_line]==0:
             defensive_line += 1
             print("defensive line:" + str(defensive_line))
         return v, move
@@ -97,7 +97,6 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
                 return v, move
         return v, move
 
-    print("ok")
     # Aggiornamento Posizione Re Avversario
     if state[kingAdv_position] != "K":
         possible_position1 = (
@@ -120,28 +119,20 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
         else:
             kingAdv_position = possible_position3
 
-        print(kingAdv_position)
+        #print(kingAdv_position)
 
     return max_value(state, -infinity, +infinity, 0, None, defensive_line)
-
 
 def h(board, player, action_considerata):
     partenza = action_considerata[1]
     arrivo = action_considerata[2]
 
     global kingAdv_position
-    # distanza = (1/(math.sqrt( (arrivo[0]-kingAdv_position[0])**2 + (arrivo[1]-kingAdv_position[1])**2 ) ) ) #Da sistemare
 
-    distanza = abs(arrivo[0] - kingAdv_position[0]) + abs(
-        arrivo[1] - kingAdv_position[1]
-    )
-
-    print(distanza)
+    distanza = abs(arrivo[0] - kingAdv_position[0]) + abs(arrivo[1] - kingAdv_position[1])
 
     if "capturing" in action_considerata:  # Capturing in zona di attacco
-        if partenza[0] <= 5:
-            return 0.85 / distanza
-        if partenza[0] <= 5:
+        if partenza[0] <= defensive_line-4:
             if arrivo[0] > partenza[0]:
                 return 0.8 / distanza
             elif arrivo[0] == partenza[0]:
@@ -154,17 +145,15 @@ def h(board, player, action_considerata):
             elif arrivo[0] == partenza[0]:  # Mangiare orizzontale
                 return 0.9
             elif (
-                (arrivo[0] + 1 == partenza[0] and arrivo[1] - 1 == partenza[1])
-                or (arrivo[0] + 1 == partenza[0] and arrivo[1] + 1 == partenza[1])
-            ) and ():
-
-                return 0.6  # Mangiare in avanti se la pedina si trova davanti o in alto a destra o in alto a sinistra
+                (partenza[0] == arrivo[0] + 1  and arrivo[1] - 1 == partenza[1])
+                or ( partenza[0] == arrivo[0] + 1 and arrivo[1] + 1 == partenza[1])
+            ):
+                return 0.6  # Mangiare in avanti se l'avv si trova davanti o in alto a destra o in alto a sinistra
             else:
                 return 0.3 / distanza  # Mangiare due caselle verso avanti
 
     """gestire l'exchange con la divisione in 4"""
     return 0  # Se non puo' catturare tutte ugual peso //TODO
-
 
 def h_alphabeta_search_adv(game, state, cutoff=cutoff_depth(2)):
     """Search game to determine best action; use alpha-beta pruning.
@@ -206,8 +195,5 @@ def h_alphabeta_search_adv(game, state, cutoff=cutoff_depth(2)):
 
     return max_value(state, -infinity, +infinity, 0)
 
-
 def h_adv(board, player):
-    """implementare euristica qui"""
-
     return 0
