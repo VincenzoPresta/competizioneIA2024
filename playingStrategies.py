@@ -21,6 +21,13 @@ pawn4line = {
     14: 1,
 }
 
+"""adversaryPawnSection={
+    "UpRight":  
+    "UpLeft":
+    "DownLeft":
+    "DownRight":
+}"""
+
 # Sono le posizioni obiettivo che desideriamo raggiungere per lo scacco, dunque si aggiorna se abbiamo una pedina nell'intorno esterno del re
 checkObj_list = []
 
@@ -84,189 +91,148 @@ def updateDefensiveLine(state, move, defensive_line):
 
 # Al seguente link è presente la spiegazione visiva: https://drive.google.com/file/d/1y0hljj_UofBwEVEe1YoHZgEH9wiXcpvg/view?usp=sharing
 # Uno sta per arrivo 2 per partenza
-def isAPossibleCheck(move, state):
+def isAPossibleCheck(state):
 
     global kingAdv_position
     global check
     global checkType1
 
-    partenza = move[1]
-    arrivo = move[2]
     # Controllo se l'intorno del re avversario è vuoto garantendo la sua impossibilità di fare una exchange
     if (
-        state[kingAdv_position[0], kingAdv_position[1] - 2] != "x"
-        and state[kingAdv_position[0], kingAdv_position[1] + 2] != "x"
-        and state[kingAdv_position[0] - 1, kingAdv_position[1] - 1] != "x"
-        and state[kingAdv_position[0] - 1, kingAdv_position[1] + 1] != "x"
-        and state[kingAdv_position[0] - 2, kingAdv_position[1]] != "x"
-        and state[kingAdv_position[0] + 1, kingAdv_position[1] - 1] != "x"
+        state[kingAdv_position[0] + 1, kingAdv_position[1] - 1] != "x"
         and state[kingAdv_position[0] + 1, kingAdv_position[1] + 1] != "x"
         and state[kingAdv_position[0] + 2, kingAdv_position[1]] != "x"
     ):
+
         # Controllo eventuale riguardo la propria mossa, se spostando la pedina siamo a rischio mangiata allora la mossa non è di scacco
-        if partenza or arrivo in encirclement_list:
-            if (
-                state[arrivo[0] + 2, arrivo[1]] != "x"
-                and state[arrivo[0] + 1, arrivo[1] - 1] != "x"
-                and state[arrivo[0] + 1, arrivo[1] + 1] != "x"
-                and state[arrivo[0] + 1, arrivo[1] - 1] != "x"
-                and state[arrivo[0], arrivo[1] - 2] != "x"
-                and state[arrivo[0], arrivo[1] + 2] != "x"
-                and state[arrivo[0] + 1, arrivo[1] - 1] != "x"
-                and state[arrivo[0] + 1, arrivo[1] + 1] != "x"
-            ):
-                return 1
-            elif (
-                state[partenza[0] + 2, partenza[1]] != "x"
-                and state[partenza[0] + 1, partenza[1] - 1] != "x"
-                and state[partenza[0] + 1, partenza[1] + 1] != "x"
-                and state[partenza[0] + 1, partenza[1] - 1] != "x"
-                and state[partenza[0], partenza[1] - 2] != "x"
-                and state[partenza[0], partenza[1] + 2] != "x"
-                and state[partenza[0] + 1, partenza[1] - 1] != "x"
-                and state[partenza[0] + 1, partenza[1] + 1] != "x"
-            ):
-                return 2
-    return 0
+        for element in encirclement_list:
+            if state[element] == 'o':
+                updateCheck(element)
+                return True
+                
+        
+        
+        """if (
+            state[arrivo[0] + 2, arrivo[1]] != "x"
+            and state[arrivo[0] + 1, arrivo[1] - 1] != "x"
+            and state[arrivo[0] + 1, arrivo[1] + 1] != "x"
+            and state[arrivo[0] + 1, arrivo[1] - 1] != "x"
+            and state[arrivo[0], arrivo[1] - 2] != "x"
+            and state[arrivo[0], arrivo[1] + 2] != "x"
+            and state[arrivo[0] + 1, arrivo[1] - 1] != "x"
+            and state[arrivo[0] + 1, arrivo[1] + 1] != "x"
+        ):
+            print("secondopasso1")
+            return 1
+        elif (
+            state[partenza[0] + 2, partenza[1]] != "x"
+            and state[partenza[0] + 1, partenza[1] - 1] != "x"
+            and state[partenza[0] + 1, partenza[1] + 1] != "x"
+            and state[partenza[0] + 1, partenza[1] - 1] != "x"
+            and state[partenza[0], partenza[1] - 2] != "x"
+            and state[partenza[0], partenza[1] + 2] != "x"
+            and state[partenza[0] + 1, partenza[1] - 1] != "x"
+            and state[partenza[0] + 1, partenza[1] + 1] != "x"
+        ):
+            print("secondopasso2")
+            return 2"""
+    return False
 
 
-def updateCheck(move, state, isPartenza):
+def updateCheck(pawn_position):
     global kingAdv_position
     global check
     global checkType1
     global checkType2
     global checkObj_list
-    arrivo = move[2]
-    partenza = move[1]
     # Verifichiamo se siamo nell'intorno
     # Se l'intorno del re è vuoto (verificato nella chiamata isAPossibleCheck) e non siamo in posizione di rischio di mangiata allora abbiamo 3 possibili posizioni
     # che ci permetterebbero di raggiungere lo scacco
-    if not checkType1 and not checkType2:
-        if isPartenza == 1:
-            check_list.append(arrivo)
+    check_list.append(pawn_position)
 
-            if (
-                arrivo[0] == kingAdv_position[0] + 4
-                and arrivo[1] == kingAdv_position[1]
-            ):
-                print("CASO1")
-                checkObj_list.append((arrivo[0] - 2, arrivo[1]))
-                checkType1 = True
+    if (
+        pawn_position[0] == kingAdv_position[0] + 4
+        and pawn_position[1] == kingAdv_position[1]
+        ):
+        print("CASO1")
+        checkObj_list.append((pawn_position[0] - 2, pawn_position[1]))
+        checkType1 = True
 
-            # Stiamo salendo di uno scalino verso destra per il controllo
-            elif (
-                arrivo[0] == kingAdv_position[0] + 3
-                and arrivo[1] > kingAdv_position[1] + 1
-            ):
-                print("CASO2")
-                checkObj_list.append((arrivo[0] - 1, arrivo[1] - 1))
-                checkObj_list.append((arrivo[0] - 2, arrivo[1]))
-                checkType1 = True
+    # Stiamo salendo di uno scalino verso destra per il controllo
+    elif (
+        pawn_position[0] == kingAdv_position[0] + 3
+        and pawn_position[1] > kingAdv_position[1] + 1
+    ):
+        print("CASO2")
+        checkObj_list.append((pawn_position[0] - 1, pawn_position[1] - 1))
+        checkObj_list.append((pawn_position[0] - 2, pawn_position[1]))
+        checkType1 = True
 
-            # Siamo saliti di un altro scalino verso destra
-            elif (
-                arrivo[0] == kingAdv_position[0] + 2
-                and arrivo[1] == kingAdv_position[1] + 2
-            ):
-                print("CASO3")
-                checkObj_list.append((arrivo[0], arrivo[1] - 2))
-                checkObj_list.append((arrivo[0] - 1, arrivo[1] - 1))
-                checkObj_list.append((arrivo[0] - 2, arrivo[1]))
-                checkType1 = True
+    # Siamo saliti di un altro scalino verso destra
+    elif (
+        pawn_position[0] == kingAdv_position[0] + 2
+        and pawn_position[1] == kingAdv_position[1] + 2
+    ):
+        print("CASO3")
+        checkObj_list.append((pawn_position[0], pawn_position[1] - 2))
+        checkObj_list.append((pawn_position[0] - 1, pawn_position[1] - 1))
+        checkType1 = True
 
-            # Ci spostiamo verso sinistra
-            elif (
-                arrivo[0] == kingAdv_position[0] + 3
-                and arrivo[1] > kingAdv_position[1] - 1
-            ):
-                print("CASO4")
-                checkObj_list.append((arrivo[0] - 1, arrivo[1] + 1))
-                checkObj_list.append((arrivo[0] - 2, arrivo[1]))
-                checkType1 = True
+    # Ci spostiamo verso sinistra
+    elif (
+        pawn_position[0] == kingAdv_position[0] + 3
+        and pawn_position[1] == kingAdv_position[1] - 1
+    ):
+        print("CASO4")
+        checkObj_list.append((pawn_position[0] - 1, pawn_position[1] + 1))
+        checkObj_list.append((pawn_position[0] - 2, pawn_position[1]))
+        checkType1 = True
 
-            # Siamo saliti di un altro scalino verso sinistra
-            elif (
-                arrivo[0] == kingAdv_position[0] + 2
-                and arrivo[1] == kingAdv_position[1] - 2
-            ):
-                print("CASO5")
-                checkObj_list.append((arrivo[0], arrivo[1] + 2))
-                checkObj_list.append((arrivo[0] - 1, arrivo[1] + 1))
-                checkType1 = True
+    # Siamo saliti di un altro scalino verso sinistra
+    elif (
+        pawn_position[0] == kingAdv_position[0] + 2
+        and pawn_position[1] == kingAdv_position[1] - 2
+    ):
+        print("CASO5")
+        checkObj_list.append((pawn_position[0], pawn_position[1] + 2))
+        checkObj_list.append((pawn_position[0] - 1, pawn_position[1] + 1))
+        checkType1 = True
 
-        elif isPartenza == 2:
-            check_list.append(partenza)
 
-            if (
-                partenza[0] == kingAdv_position[0] + 4
-                and partenza[1] == kingAdv_position[1]
-            ):
-                print("CASO1")
-                checkObj_list.append((partenza[0] - 2, partenza[1]))
-                checkType1 = True
-
-            # Stiamo salendo di uno scalino verso destra per il controllo
-            elif (
-                partenza[0] == kingAdv_position[0] + 3
-                and partenza[1] > kingAdv_position[1] + 1
-            ):
-                print("CASO2")
-                checkObj_list.append((partenza[0] - 1, partenza[1] - 1))
-                checkObj_list.append((partenza[0] - 2, partenza[1]))
-                checkType1 = True
-
-            # Siamo saliti di un altro scalino verso destra
-            elif (
-                partenza[0] == kingAdv_position[0] + 2
-                and partenza[1] == kingAdv_position[1] + 2
-            ):
-                print("CASO3")
-                checkObj_list.append((partenza[0], partenza[1] - 2))
-                checkObj_list.append((partenza[0] - 1, partenza[1] - 1))
-                checkObj_list.append((partenza[0] - 2, partenza[1]))
-                checkType1 = True
-
-            # Ci spostiamo verso sinistra
-            elif (
-                partenza[0] == kingAdv_position[0] + 3
-                and partenza[1] > kingAdv_position[1] - 1
-            ):
-                print("CASO4")
-                checkObj_list.append((partenza[0] - 1, partenza[1] + 1))
-                checkObj_list.append((partenza[0] - 2, partenza[1]))
-                checkType1 = True
-
-            # Siamo saliti di un altro scalino verso sinistra
-            elif (
-                partenza[0] == kingAdv_position[0] + 2
-                and partenza[1] == kingAdv_position[1] - 2
-            ):
-                print("CASO5")
-                checkObj_list.append((partenza[0], partenza[1] + 2))
-                checkObj_list.append((partenza[0] - 1, partenza[1] + 1))
-                checkType1 = True
+    
+    print("VEDERE POSIZIONI")
+    print(checkType1)
+    print(pawn_position)
+    print(kingAdv_position)
+    print(encirclement_list)
+    print(check_list)
+    print(checkObj_list)
+    """if len(check_list)==0 or len(checkObj_list)==0:
+        return 0
+    else:
+        return 1"""
 
 
 def updateEncirclementList():
     global kingAdv_position
     # point1 = (kingAdv_position[0],kingAdv_position[1]-4)
-    point2 = (kingAdv_position[0] - 1, kingAdv_position[1] - 3)
-    point3 = (kingAdv_position[0] - 2, kingAdv_position[1] - 2)
-    point4 = (kingAdv_position[0] - 3, kingAdv_position[1] - 1)
-    point5 = (kingAdv_position[0] - 4, kingAdv_position[1])
+    #point2 = (kingAdv_position[0] - 1, kingAdv_position[1] - 3)
+    point3 = (kingAdv_position[0] + 2, kingAdv_position[1] - 2)
+    point4 = (kingAdv_position[0] + 3, kingAdv_position[1] - 1)
+    point5 = (kingAdv_position[0] + 4, kingAdv_position[1])
     point6 = (kingAdv_position[0] + 3, kingAdv_position[1] + 1)
     point7 = (kingAdv_position[0] + 2, kingAdv_position[1] + 2)
-    point8 = (kingAdv_position[0] + 1, kingAdv_position[1] + 3)
+    #point8 = (kingAdv_position[0] + 1, kingAdv_position[1] + 3)
     # point9 = (kingAdv_position[0],kingAdv_position[1]+4)
 
     # encirclement_list.append(point1)
-    encirclement_list.append(point2)
+    #encirclement_list.append(point2)
     encirclement_list.append(point3)
     encirclement_list.append(point4)
     encirclement_list.append(point5)
     encirclement_list.append(point6)
     encirclement_list.append(point7)
-    encirclement_list.append(point8)
+    #encirclement_list.append(point8)
     # encirclement_list.append(point9)
 
 
@@ -298,7 +264,7 @@ def testCheck(move, state):
 # ------------------------------------------------------------------------------------#
 
 
-def h_alphabeta_search(game, state, cutoff=cutoff_depth(1)):
+def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
     """Search game to determine best action; use alpha-beta pruning.
 
     As in [Figure 5.7], this version searches all the way to the leaves.
@@ -307,7 +273,7 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(1)):
     Prints considered moves in ascending order of utility.
     Always chooses the move with the highest utility.
     """
-
+    
     player = state.to_move
     global kingAdv_position
     global check
@@ -316,6 +282,7 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(1)):
     global possibleCheck
     global king_in_danger
     considered_moves = []  # Lista per conservare le tuple (move, utility), in pratica una lista di mosse considerate 
+    updateEncirclementList()
 
     @cache1
     def max_value(
@@ -349,14 +316,6 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(1)):
 
         updatePawn4line(move)
         defensive_line = updateDefensiveLine(state, move, defensive_line)
-
-        tmp = isAPossibleCheck
-        if tmp == 1:
-            possibleCheck = True
-            updateCheck(move, state, False)
-        elif tmp == 2:
-            possibleCheck = True
-            updateCheck(move, state, True)
 
         testCheck(move, state)
 
@@ -392,41 +351,32 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(1)):
                 considered_moves.append((a, v2))  # Aggiungi la mossa alla lista con la rispettiva utility
         return v, move
 
+    if isAPossibleCheck(state):
+        print("prova")
+        possibleCheck=True
+
     if checkType1:
         for position in check_list:
-            if state[position[0], position[1]] != "o":
+            if state[position] != "o":
                 checkType1 = False
                 check_list.clear()
                 checkObj_list.clear()
 
-    if checkType2:
-        for position in check_list:
-            if state[position[0], position[1]] != "o":
-                checkType2 = False
-                check_list.clear()
-
-    if check or checkType1 or checkType2:
+    if check or checkType1:
         if (
-            state[kingAdv_position[0] - 2, kingAdv_position[1]] == "x"
-            or state[kingAdv_position[0] - 1, kingAdv_position[1] + 1] == "x"
-            or state[kingAdv_position[0], kingAdv_position[1] + 2] == "x"
-            or state[kingAdv_position[0] + 1, kingAdv_position[1] + 1] == "x"
+            state[kingAdv_position[0] + 1, kingAdv_position[1] + 1] == "x"
             or state[kingAdv_position[0] + 2, kingAdv_position[1]] == "x"
             or state[kingAdv_position[0] + 1, kingAdv_position[1] - 1] == "x"
-            or state[kingAdv_position[0], kingAdv_position[1] - 2] == "x"
-            or state[kingAdv_position[0] - 1, kingAdv_position[1] - 1] == "x"
         ):
-            checkType2 = False
             checkType1 = False
             possibleCheck = False
             check = False
             encirclement_list.clear()
             check_list.clear()
             checkObj_list.clear()
-            checkObj_list.clear()
         else:
             for element in check_list:
-                if state[element[0], element[1]] != "o":
+                if state[element] != "o":
                     checkType1 = False
                     checkType2 = False
                     possibleCheck = False
@@ -439,7 +389,6 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(1)):
     # Aggiornamento Posizione Re Avversario
     if state[kingAdv_position] != "K":
         print("AGGIORNAMENTO RE")
-        checkType2 = False
         checkType1 = False
         possibleCheck = False
         check = False
@@ -496,7 +445,7 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(1)):
     ):
         king_in_danger = True
     else:
-        king_in_dangerous = False
+        king_in_danger = False
 
     utility, chosen_move = max_value(
         state, player, -infinity, +infinity, 0, None, defensive_line
@@ -505,14 +454,14 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(1)):
     sorted_moves = sorted(considered_moves, key=lambda x: x[1])
 
     # Print considered moves and utilities
-    print("Considered Moves and Utilities [Sorted by utility]:")
+    """print("Considered Moves and Utilities [Sorted by utility]:")
     for move, utility in sorted_moves:
         print(f"Move: {move}, Utility: {utility}")
 
     print("Number of considered moves: ", len(considered_moves))
     considered_moves = []
     # Print chosen move and utility
-    print(f"\nChosen Move: {chosen_move}, Utility: {utility}")
+    print(f"\nChosen Move: {chosen_move}, Utility: {utility}")"""
 
     return utility, chosen_move
 
@@ -531,6 +480,7 @@ def h(state, action_considerata):
     global checkType1
     global checkType2
 
+    print(checkType1)
     distanzaReAvversario = abs(arrivo[0] - kingAdv_position[0]) + abs(
         arrivo[1] - kingAdv_position[1]
     )
@@ -540,9 +490,6 @@ def h(state, action_considerata):
 
     if distanzaReAvversario == 0:
         return 0
-
-    if king_in_danger:
-        return 0.911 / distanzaRePersonale
 
     # Gestione degli spostamenti delle pedine che sono già in una posizione di scacco (se si muovessero si perderebbe lo scacco)
 
@@ -555,32 +502,35 @@ def h(state, action_considerata):
 
     if "capturing" in action_considerata:  # Capturing in zona di attacco
 
+        if king_in_danger:
+            return 0.98 / distanzaRePersonale
+
         # Si predilige una mossa che garantisce il check di tipo 1/se si ha questa mossa implica che si è in una situazione di scacco
         if checkType1:
             if arrivo in checkObj_list:
-                return 0.95
+                for element in check_list:
+                    if state[element]=='o':
+                        return 0.95
+                return 0
 
         # Si controlla se c'è un possibile scacco
 
-        elif isAPossibleCheck(action_considerata, state):
-            return 0.6
-
         if arrivo[0] <= defensive_line - 3:
             if arrivo[0] > partenza[0]:
-                return 0.82 / distanzaReAvversario
+                return 0.75 / distanzaReAvversario
             elif arrivo[0] == partenza[0]:
                 return 0.80 / distanzaReAvversario
             else:
                 return 0.5 / distanzaReAvversario  # avanti
         else:  # Capturing nella zona di difesa
             if arrivo[0] > partenza[0]:  # Mangiare verso dietro
-                return 0.98
+                return 0.91
             elif arrivo[0] == partenza[0]:  # Mangiare orizzontale
-                return 0.92
+                return 0.90
             elif (partenza[0] == arrivo[0] + 1 and arrivo[1] - 1 == partenza[1]) or (
                 partenza[0] == arrivo[0] + 1 and arrivo[1] + 1 == partenza[1]
             ):
-                return 0.912  # Mangiare in avanti se l'avv si trova davanti o in alto a destra o in alto a sinistra
+                return 0.85  # Mangiare in avanti se l'avv si trova davanti o in alto a destra o in alto a sinistra
             else:
                 return 0.45 / distanzaReAvversario  # Mangiare due caselle verso avanti
 
@@ -588,11 +538,13 @@ def h(state, action_considerata):
         # Si predilige una mossa che garantisce il check di tipo 1/se si ha questa mossa implica che si è in una situazione di scacco
         if checkType1:
             if arrivo in checkObj_list:
-                return 0.94
+                for element in check_list:
+                    if state[element]=='o':
+                        return 0.92
+                print("ziosmegma")
+                return 0
 
         # Si controlla se
-        elif isAPossibleCheck(action_considerata, state):
-            return 0.913 / distanzaReAvversario
 
         distanza_minima = math.inf
         if not possibleCheck:

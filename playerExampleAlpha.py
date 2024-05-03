@@ -7,7 +7,7 @@ import game
 
 
 def playerStrategy(game, state):
-    cutOff = 1
+    cutOff = 0
     value, move = playingStrategies.h_alphabeta_search(
         game,
         state,
