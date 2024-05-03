@@ -21,13 +21,6 @@ pawn4line = {
     14: 1,
 }
 
-"""adversaryPawnSection={
-    "UpRight":  
-    "UpLeft":
-    "DownLeft":
-    "DownRight":
-}"""
-
 # Sono le posizioni obiettivo che desideriamo raggiungere per lo scacco, dunque si aggiorna se abbiamo una pedina nell'intorno esterno del re
 checkObj_list = []
 
@@ -36,10 +29,12 @@ check_list = []
 
 possibleCheck = False
 checkType1 = False
-checkType2 = False
 check = False
 
 king_in_danger = False
+
+captures=0
+
 
 
 # è la lista delle posizioni dell'intorno grande del re in modo che non si debbano calcolare ad ogni verifica di check ma si genera la lista
@@ -109,33 +104,6 @@ def isAPossibleCheck(state):
             if state[element] == 'o':
                 updateCheck(element)
                 return True
-                
-        
-        
-        """if (
-            state[arrivo[0] + 2, arrivo[1]] != "x"
-            and state[arrivo[0] + 1, arrivo[1] - 1] != "x"
-            and state[arrivo[0] + 1, arrivo[1] + 1] != "x"
-            and state[arrivo[0] + 1, arrivo[1] - 1] != "x"
-            and state[arrivo[0], arrivo[1] - 2] != "x"
-            and state[arrivo[0], arrivo[1] + 2] != "x"
-            and state[arrivo[0] + 1, arrivo[1] - 1] != "x"
-            and state[arrivo[0] + 1, arrivo[1] + 1] != "x"
-        ):
-            print("secondopasso1")
-            return 1
-        elif (
-            state[partenza[0] + 2, partenza[1]] != "x"
-            and state[partenza[0] + 1, partenza[1] - 1] != "x"
-            and state[partenza[0] + 1, partenza[1] + 1] != "x"
-            and state[partenza[0] + 1, partenza[1] - 1] != "x"
-            and state[partenza[0], partenza[1] - 2] != "x"
-            and state[partenza[0], partenza[1] + 2] != "x"
-            and state[partenza[0] + 1, partenza[1] - 1] != "x"
-            and state[partenza[0] + 1, partenza[1] + 1] != "x"
-        ):
-            print("secondopasso2")
-            return 2"""
     return False
 
 
@@ -143,7 +111,6 @@ def updateCheck(pawn_position):
     global kingAdv_position
     global check
     global checkType1
-    global checkType2
     global checkObj_list
     # Verifichiamo se siamo nell'intorno
     # Se l'intorno del re è vuoto (verificato nella chiamata isAPossibleCheck) e non siamo in posizione di rischio di mangiata allora abbiamo 3 possibili posizioni
@@ -154,7 +121,6 @@ def updateCheck(pawn_position):
         pawn_position[0] == kingAdv_position[0] + 4
         and pawn_position[1] == kingAdv_position[1]
         ):
-        print("CASO1")
         checkObj_list.append((pawn_position[0] - 2, pawn_position[1]))
         checkType1 = True
 
@@ -163,7 +129,6 @@ def updateCheck(pawn_position):
         pawn_position[0] == kingAdv_position[0] + 3
         and pawn_position[1] > kingAdv_position[1] + 1
     ):
-        print("CASO2")
         checkObj_list.append((pawn_position[0] - 1, pawn_position[1] - 1))
         checkObj_list.append((pawn_position[0] - 2, pawn_position[1]))
         checkType1 = True
@@ -173,7 +138,6 @@ def updateCheck(pawn_position):
         pawn_position[0] == kingAdv_position[0] + 2
         and pawn_position[1] == kingAdv_position[1] + 2
     ):
-        print("CASO3")
         checkObj_list.append((pawn_position[0], pawn_position[1] - 2))
         checkObj_list.append((pawn_position[0] - 1, pawn_position[1] - 1))
         checkType1 = True
@@ -183,7 +147,6 @@ def updateCheck(pawn_position):
         pawn_position[0] == kingAdv_position[0] + 3
         and pawn_position[1] == kingAdv_position[1] - 1
     ):
-        print("CASO4")
         checkObj_list.append((pawn_position[0] - 1, pawn_position[1] + 1))
         checkObj_list.append((pawn_position[0] - 2, pawn_position[1]))
         checkType1 = True
@@ -193,24 +156,9 @@ def updateCheck(pawn_position):
         pawn_position[0] == kingAdv_position[0] + 2
         and pawn_position[1] == kingAdv_position[1] - 2
     ):
-        print("CASO5")
         checkObj_list.append((pawn_position[0], pawn_position[1] + 2))
         checkObj_list.append((pawn_position[0] - 1, pawn_position[1] + 1))
         checkType1 = True
-
-
-    
-    print("VEDERE POSIZIONI")
-    print(checkType1)
-    print(pawn_position)
-    print(kingAdv_position)
-    print(encirclement_list)
-    print(check_list)
-    print(checkObj_list)
-    """if len(check_list)==0 or len(checkObj_list)==0:
-        return 0
-    else:
-        return 1"""
 
 
 def updateEncirclementList():
@@ -222,25 +170,18 @@ def updateEncirclementList():
     point5 = (kingAdv_position[0] + 4, kingAdv_position[1])
     point6 = (kingAdv_position[0] + 3, kingAdv_position[1] + 1)
     point7 = (kingAdv_position[0] + 2, kingAdv_position[1] + 2)
-    #point8 = (kingAdv_position[0] + 1, kingAdv_position[1] + 3)
-    # point9 = (kingAdv_position[0],kingAdv_position[1]+4)
 
-    # encirclement_list.append(point1)
-    #encirclement_list.append(point2)
     encirclement_list.append(point3)
     encirclement_list.append(point4)
     encirclement_list.append(point5)
     encirclement_list.append(point6)
     encirclement_list.append(point7)
-    #encirclement_list.append(point8)
-    # encirclement_list.append(point9)
 
 
 def testCheck(move, state):
     global kingAdv_position
     global check
     global checkType1
-    global checkType2
     global checkObj_list
 
     partenza = move[0]
@@ -275,19 +216,18 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
     """
     
     player = state.to_move
+    initial_piece_count = len(game.initial.occupiedPos(state.to_move))
+    global captures
     global kingAdv_position
     global check
     global checkType1
-    global checkType2
     global possibleCheck
     global king_in_danger
     considered_moves = []  # Lista per conservare le tuple (move, utility), in pratica una lista di mosse considerate 
     updateEncirclementList()
 
     @cache1
-    def max_value(
-        state, player, alpha, beta, depth, action_considerata, defensive_line
-    ):
+    def max_value(state, player, alpha, beta, depth, action_considerata, defensive_line):
         global possibleCheck
         v2 = -infinity
         if game.is_terminal(state):
@@ -296,15 +236,7 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
             return h(state, action_considerata), None
         v, move = -infinity, None
         for a in game.actions(state):
-            v2, _ = min_value(
-                game.result(state, a),
-                player,
-                alpha,
-                beta,
-                depth + 1,
-                a,
-                defensive_line,
-            )
+            v2, _ = min_value(game.result(state, a), player, alpha, beta, depth + 1, a, defensive_line)
             if v2 > v:
                 v, move = v2, a
                 alpha = max(alpha, v)
@@ -322,9 +254,7 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
         return v, move
 
     @cache1
-    def min_value(
-        state, player, alpha, beta, depth, action_considerata, defensive_line
-    ):
+    def min_value(state, player, alpha, beta, depth, action_considerata, defensive_line):
         v2 = -infinity
         if game.is_terminal(state):
             return game.utility(state, player), None
@@ -332,19 +262,10 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
             return h(state, action_considerata), None
         v, move = +infinity, None
         for a in game.actions(state):
-            v2, _ = max_value(
-                game.result(state, a),
-                player,
-                alpha,
-                beta,
-                depth + 1,
-                a,
-                defensive_line,
-            )
+            v2, _ = max_value(game.result(state, a), player, alpha, beta, depth + 1, a, defensive_line)
             if v2 < v:
                 v, move = v2, a
                 beta = min(beta, v)
-
             if v <= alpha:
                 return v, move
             if state.to_move == "O":
@@ -352,7 +273,6 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
         return v, move
 
     if isAPossibleCheck(state):
-        print("prova")
         possibleCheck=True
 
     if checkType1:
@@ -363,11 +283,9 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
                 checkObj_list.clear()
 
     if check or checkType1:
-        if (
-            state[kingAdv_position[0] + 1, kingAdv_position[1] + 1] == "x"
+        if (state[kingAdv_position[0] + 1, kingAdv_position[1] + 1] == "x"
             or state[kingAdv_position[0] + 2, kingAdv_position[1]] == "x"
-            or state[kingAdv_position[0] + 1, kingAdv_position[1] - 1] == "x"
-        ):
+            or state[kingAdv_position[0] + 1, kingAdv_position[1] - 1] == "x"):
             checkType1 = False
             possibleCheck = False
             check = False
@@ -378,7 +296,6 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
             for element in check_list:
                 if state[element] != "o":
                     checkType1 = False
-                    checkType2 = False
                     possibleCheck = False
                     check = False
                     encirclement_list.clear()
@@ -388,7 +305,6 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
 
     # Aggiornamento Posizione Re Avversario
     if state[kingAdv_position] != "K":
-        print("AGGIORNAMENTO RE")
         checkType1 = False
         possibleCheck = False
         check = False
@@ -454,17 +370,27 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
     sorted_moves = sorted(considered_moves, key=lambda x: x[1])
 
     # Print considered moves and utilities
-    """print("Considered Moves and Utilities [Sorted by utility]:")
+    print("Considered Moves and Utilities [Sorted by utility]:")
     for move, utility in sorted_moves:
         print(f"Move: {move}, Utility: {utility}")
 
     print("Number of considered moves: ", len(considered_moves))
     considered_moves = []
     # Print chosen move and utility
-    print(f"\nChosen Move: {chosen_move}, Utility: {utility}")"""
+    print(f"\nChosen Move: {chosen_move}, Utility: {utility}")
+    
+    if 'capturing' in chosen_move: 
+        captures+=1
+        print('cattura effettuata -> catture: ', captures)
 
     return utility, chosen_move
 
+
+def suicide(state,arriving_r,arriving_c):
+    adv_pawns = ['x','K']
+    if state[(arriving_r -2, arriving_c)] in adv_pawns or state[(arriving_r-1, arriving_c-1)]  in adv_pawns or state[(arriving_r-1, arriving_c+1)]  in adv_pawns: 
+        return True
+    return False
 
 #______________________________EURISTICA________________________________________________________________
 
@@ -478,9 +404,13 @@ def h(state, action_considerata):
     global check
     global possibleCheck
     global checkType1
-    global checkType2
+    
+    def suicide(state,arriving_r,arriving_c):
+        if state[(arriving_r -2, arriving_c)] == 'x' or state[(arriving_r-1, arriving_c-1)] =='x' or state[(arriving_r-1, arriving_c+1)]=='x' or state[(arriving_r, arriving_c+2)]=='x' or state[(arriving_r,arriving_c-2)]=='x': 
+            return True
+        return False
 
-    print(checkType1)
+
     distanzaReAvversario = abs(arrivo[0] - kingAdv_position[0]) + abs(
         arrivo[1] - kingAdv_position[1]
     )
@@ -541,7 +471,6 @@ def h(state, action_considerata):
                 for element in check_list:
                     if state[element]=='o':
                         return 0.92
-                print("ziosmegma")
                 return 0
 
         # Si controlla se
@@ -564,26 +493,27 @@ def h(state, action_considerata):
                     if distanza_minima > tmp:
                         distanza_minima = tmp
 
-        if (
-            state[(arrivo[0] - 2, arrivo[1])] != " "
-            or state[(arrivo[0] - 1, arrivo[1] + 1)] != " "
-            or state[(arrivo[0], arrivo[1] + 2)] != " "
-            or state[(arrivo[0] + 1, arrivo[1] + 1)] != " "
-            or state[(arrivo[0] + 2, arrivo[1])] != " "
-            or state[(arrivo[0] + 1, arrivo[1] - 1)] != " "
-            or state[(arrivo[0], arrivo[1] - 2)] != " "
-            or state[(arrivo[0] - 1, arrivo[1] - 1)] != " "
-        ):  # la pedina dovrebbe evitare di spostarsi in una casella nella quale potrebbe essere attaccata
-            return 0.01
+        if suicide(state, arrivo[0], arrivo[1]):  
+            return -0.5
+        elif arrivo[0]>=defensive_line:
+            return 0.01/distanzaReAvversario
+        elif arrivo[0]<defensive_line: 
+            return 0.01/distanzaReAvversario  #è pesata in maniera tale che si "forzi" l'accerchiamento del re avversario 
+        
+    elif ("exchange" in action_considerata):
+        return 0 #considere numero di pedine avversarie 
+        
+    return 0
 
-        if partenza[0] < defensive_line:
-            return 0.3 / distanza_minima
-        else:
-            return 0.1 / distanza_minima
-
-    """gestire l'exchange con la divisione in 4"""
-    return 0  # Se non puo' catturare tutte ugual peso //TODO
-
+def dynamic_cutoff(game, state):
+    initial_piece_count = len(game.initial.occupiedPos(state.to_move))
+    total_pieces = len(state.occupiedPos(state.to_move))
+    if total_pieces == initial_piece_count:
+        return 0
+    elif total_pieces <= initial_piece_count and total_pieces > initial_piece_count // 2:
+        return 2
+    else:
+        return 4
 
 
 
