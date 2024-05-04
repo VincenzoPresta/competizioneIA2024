@@ -15,14 +15,15 @@ import sys
 
 # EXAMPLE VERSION
 # #######################
-import playerExampleRandom as playerXmodule
-import playerExampleAlpha as playerOmodule
+import playerExampleAlpha as playerXmodule
+import playingStrategies as playerOmodule
 # #######################
 
 
 # King and Courtesan Game
 # The moves of player have the form (y,x), where y is the column number and x the row number (starting with 0)
-# In the visualization, they are in the form (row, column) starting with 1.
+# In the vif
+# alization, they are in the form (row, column) starting with 1.
 
 class Game:
     """A game is similar to a problem, but it has a terminal test instead of

@@ -432,12 +432,6 @@ def h(state, action_considerata):
     global checkType1
     global current_pieces_adv
 
-    
-    def suicide(state,arriving_r,arriving_c):
-        if state[(arriving_r -2, arriving_c)] == 'x' or state[(arriving_r-1, arriving_c-1)] =='x' or state[(arriving_r-1, arriving_c+1)]=='x' or state[(arriving_r, arriving_c+2)]=='x' or state[(arriving_r,arriving_c-2)]=='x': 
-            return True
-        return False
-
 
     advKingDistance = abs(arrival[0] - kingAdv_position[0]) + abs(
         arrival[1] - kingAdv_position[1]
@@ -473,11 +467,11 @@ def h(state, action_considerata):
         #Check for a possible check
         if arrival[0] <= defensive_line - 3:
             if arrival[0] > start[0]:
-                return 0.75 / advKingDistance
+                return 0.9 / advKingDistance
             elif arrival[0] == start[0]:
-                return 0.80 / advKingDistance
+                return 0.95 / advKingDistance
             else:
-                return 0.5 / advKingDistance  #forward
+                return 0.7 / advKingDistance  #forward
             
         else:  # Capturing in defensive zone
             if arrival[0] > start[0]:  # Back capture
@@ -520,24 +514,22 @@ def h(state, action_considerata):
                         minimumDistance = tmp
 
         if suicide(state, arrival[0], arrival[1]):  
-            return -0.5
+            return -0.85
         elif arrival[0]>=defensive_line:
             return 0.01/advKingDistance
         elif arrival[0]<defensive_line: 
-            return 0.01/advKingDistance  #It is weighted to 'force' the encirclement of the opponent's king
+            return 0.02/advKingDistance  #It is weighted to 'force' the encirclement of the opponent's king
         
     #2nd GOAL 
     elif ("exchange" in action_considerata) and (current_pieces_adv <= initial_adv_piece_count//6):
         if (arrival[0]<defensive_line):
-            return 0.1 
+            return 0.1/advKingDistance 
         elif(arrival[0]>=defensive_line):
             #king to his pawns
             if state[(arrival[0] -2, arrival[1])] == 'o' or state[(arrival[0]-1, arrival[1]-1)] =='o' or state[(arrival[0]-1, arrival[1]+1)]=='o' or state[(arrival[0], arrival[1]+2)]=='o' or state[(arrival[0],arrival[1]-2)]=='o': 
                 return 0.15
             else:
                 return 0.01/advKingDistance
-            
-            
         
     return 0
 
