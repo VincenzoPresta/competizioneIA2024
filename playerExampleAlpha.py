@@ -7,11 +7,24 @@ import game
 
 
 def playerStrategy(game, state):
-    cutOff = 0
+    cutOff = dynamic_cutoff(game, state)
     value, move = playingStrategies.h_alphabeta_search(
         game,
         state,
         playingStrategies.cutoff_depth(cutOff),
     )
+    
+def dynamic_cutoff(game, state):
+    
+    return 0; #TODO
+    initial_piece_count = len(game.initial.occupiedPos(state.to_move))
+    total_pieces = len(state.occupiedPos(state.to_move))
+    if total_pieces == initial_piece_count:
+        return 0
+    elif total_pieces <= initial_piece_count and total_pieces > initial_piece_count // 2:
+        return 2
+    else:
+        return 4
+
 
     return move

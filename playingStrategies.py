@@ -11,7 +11,7 @@ pawn4line = {
     4: 0,
     5: 0,
     6: 0,
-    7: 0,  # Linea Centrale
+    7: 0,  # Central line
     8: 7,
     9: 6,
     10: 5,
@@ -21,10 +21,10 @@ pawn4line = {
     14: 1,
 }
 
-# Sono le posizioni obiettivo che desideriamo raggiungere per lo scacco, dunque si aggiorna se abbiamo una pedina nell'intorno esterno del re
+#These are the target positions we want to reach for check. Updated if we have a pawn near the opponent's king's outer circle.
 checkObj_list = []
 
-# Sono le posizioni delle pedine che sono già nell'intorno esterno del re che ci potrebbero garantire uno scacco
+# These are the positions of pawns that are already in the opponent's king's outer circle that could potentially check.
 check_list = []
 
 possibleCheck = False
@@ -37,13 +37,12 @@ captures=0
 
 
 
-# è la lista delle posizioni dell'intorno grande del re in modo che non si debbano calcolare ad ogni verifica di check ma si genera la lista
-# ogni volta che il re viene spostato
+# è la lista delle posizioni dell'intorno grande del re in modo che non si debbano calcolare ad ogni verifica di check ma si genera la lista ogni volta che il re viene spostato
 encirclement_list = []
 
 defensive_line = 9
 kingAdv_position = (0, 7)
-kingOur_position = (14, 7)
+king_position = (14, 7)
 
 # ---------------------------------------------------------------------------------#
 
@@ -85,14 +84,13 @@ def updateDefensiveLine(state, move, defensive_line):
 
 
 # Al seguente link è presente la spiegazione visiva: https://drive.google.com/file/d/1y0hljj_UofBwEVEe1YoHZgEH9wiXcpvg/view?usp=sharing
-# Uno sta per arrivo 2 per partenza
 def isAPossibleCheck(state):
 
     global kingAdv_position
     global check
     global checkType1
 
-    # Controllo se l'intorno del re avversario è vuoto garantendo la sua impossibilità di fare una exchange
+    # Check if the opponent's king's surrounding area is empty, guaranteeing that an exchange is impossible.
     if (
         state[kingAdv_position[0] + 1, kingAdv_position[1] - 1] != "x"
         and state[kingAdv_position[0] + 1, kingAdv_position[1] + 1] != "x"
@@ -184,8 +182,8 @@ def testCheck(move, state):
     global checkType1
     global checkObj_list
 
-    partenza = move[0]
-    arrivo = move[1]
+    start = move[0]
+    arrival = move[1]
 
     # Si controlla se entrambe le pedine richieste sono in check
     if checkType1:
@@ -223,7 +221,7 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
     global checkType1
     global possibleCheck
     global king_in_danger
-    considered_moves = []  # Lista per conservare le tuple (move, utility), in pratica una lista di mosse considerate 
+    considered_moves = []  #A list to store (move, utility) tuples, essentially a list of considered moves. 
     updateEncirclementList()
 
     @cache1
@@ -244,8 +242,7 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
             if v >= beta:
                 return v, move
             if state.to_move == "O":
-                considered_moves.append((a, v2))  # Aggiungi la mossa alla lista con la rispettiva utility
-
+                considered_moves.append((a, v2))  # Add the move to the list with its respective utility.
         updatePawn4line(move)
         defensive_line = updateDefensiveLine(state, move, defensive_line)
 
@@ -269,7 +266,7 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
             if v <= alpha:
                 return v, move
             if state.to_move == "O":
-                considered_moves.append((a, v2))  # Aggiungi la mossa alla lista con la rispettiva utility
+                considered_moves.append((a, v2))  # Add the move to the list with its respective utility.
         return v, move
 
     if isAPossibleCheck(state):
@@ -303,7 +300,7 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
                     checkObj_list.clear()
                     checkObj_list.clear()
 
-    # Aggiornamento Posizione Re Avversario
+    # Update Adv King position
     if state[kingAdv_position] != "K":
         checkType1 = False
         possibleCheck = False
@@ -315,15 +312,15 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
         possible_position1 = (
             kingAdv_position[0] + 2,
             kingAdv_position[1],
-        )  # Spostamento in avanti del Re
+        )  # Forward movement of the King
         possible_position2 = (
             kingAdv_position[0] + 1,
             kingAdv_position[1] + 1,
-        )  # Spostamento verso destra del Re
+        )  # Right movement of the King
         possible_position3 = (
             kingAdv_position[0] + 1,
             kingAdv_position[1] - 1,
-        )  # Spostamento verso sinsitra del Re
+        )  # Left movement of the King
         possible_position4 = (kingAdv_position[0], kingAdv_position[1] - 2)
         possible_position5 = (kingAdv_position[0], kingAdv_position[1] + 2)
         possible_position6 = (kingAdv_position[0] - 1, kingAdv_position[1] - 1)
@@ -350,23 +347,20 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
         updateEncirclementList()
 
     if (
-        state[kingOur_position[0] - 2, kingOur_position[1]] == "x"
-        or state[kingOur_position[0] - 1, kingOur_position[1] + 1] == "x"
-        or state[kingOur_position[0], kingOur_position[1] + 2] == "x"
-        or state[kingOur_position[0] + 1, kingOur_position[1] + 1] == "x"
-        or state[kingOur_position[0] + 2, kingOur_position[1]] == "x"
-        or state[kingOur_position[0] + 1, kingOur_position[1] - 1] == "x"
-        or state[kingOur_position[0], kingOur_position[1] - 2] == "x"
-        or state[kingOur_position[0] - 1, kingOur_position[1] - 1] == "x"
+        state[king_position[0] - 2, king_position[1]] == "x"
+        or state[king_position[0] - 1, king_position[1] + 1] == "x"
+        or state[king_position[0], king_position[1] + 2] == "x"
+        or state[king_position[0] + 1, king_position[1] + 1] == "x"
+        or state[king_position[0] + 2, king_position[1]] == "x"
+        or state[king_position[0] + 1, king_position[1] - 1] == "x"
+        or state[king_position[0], king_position[1] - 2] == "x"
+        or state[king_position[0] - 1, king_position[1] - 1] == "x"
     ):
         king_in_danger = True
     else:
         king_in_danger = False
 
-    utility, chosen_move = max_value(
-        state, player, -infinity, +infinity, 0, None, defensive_line
-    )  # Sostituito il return per stampare le mosse considerate
-
+    utility, chosen_move = max_value(state, player, -infinity, +infinity, 0, None, defensive_line) 
     sorted_moves = sorted(considered_moves, key=lambda x: x[1])
 
     # Print considered moves and utilities
@@ -381,7 +375,7 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(0)):
     
     if 'capturing' in chosen_move: 
         captures+=1
-        print('cattura effettuata -> catture: ', captures)
+        print('capture completed -> captures: ', captures)
 
     return utility, chosen_move
 
@@ -392,12 +386,12 @@ def suicide(state,arriving_r,arriving_c):
         return True
     return False
 
-#______________________________EURISTICA________________________________________________________________
+#______________________________HEURISTIC________________________________________________________________
 
 
 def h(state, action_considerata):
-    partenza = action_considerata[1]
-    arrivo = action_considerata[2]
+    start = action_considerata[1]
+    arrival = action_considerata[2]
 
     global kingAdv_position
     global king_in_danger
@@ -411,63 +405,63 @@ def h(state, action_considerata):
         return False
 
 
-    distanzaReAvversario = abs(arrivo[0] - kingAdv_position[0]) + abs(
-        arrivo[1] - kingAdv_position[1]
+    advKingDistance = abs(arrival[0] - kingAdv_position[0]) + abs(
+        arrival[1] - kingAdv_position[1]
     )
-    distanzaRePersonale = abs(arrivo[0] - kingOur_position[0]) + abs(
-        arrivo[1] - kingOur_position[1]
+    kingDistance = abs(arrival[0] - king_position[0]) + abs(
+        arrival[1] - king_position[1]
     )
 
-    if distanzaReAvversario == 0:
+    if advKingDistance == 0:
         return 0
 
-    # Gestione degli spostamenti delle pedine che sono già in una posizione di scacco (se si muovessero si perderebbe lo scacco)
-
-    if partenza in check_list:
+    #Handling the movement of pawns that are already in a check position (if they move, check would be lost)
+    if start in check_list:
         return 0
 
     if checkType1:
-        if partenza in checkObj_list:
+        if start in checkObj_list:
             return 0
 
-    if "capturing" in action_considerata:  # Capturing in zona di attacco
+    if "capturing" in action_considerata:  # Capturing attacking zone
 
         if king_in_danger:
-            return 0.98 / distanzaRePersonale
+            return 0.98 / kingDistance
 
-        # Si predilige una mossa che garantisce il check di tipo 1/se si ha questa mossa implica che si è in una situazione di scacco
+        #Favor a move that guarantees a type 1 check / Having this move implies that you are in a checkmate situation        
         if checkType1:
-            if arrivo in checkObj_list:
+            if arrival in checkObj_list:
                 for element in check_list:
                     if state[element]=='o':
                         return 0.95
                 return 0
 
-        # Si controlla se c'è un possibile scacco
-
-        if arrivo[0] <= defensive_line - 3:
-            if arrivo[0] > partenza[0]:
-                return 0.75 / distanzaReAvversario
-            elif arrivo[0] == partenza[0]:
-                return 0.80 / distanzaReAvversario
+        #Check for a possible check
+        if arrival[0] <= defensive_line - 3:
+            if arrival[0] > start[0]:
+                return 0.75 / advKingDistance
+            elif arrival[0] == start[0]:
+                return 0.80 / advKingDistance
             else:
-                return 0.5 / distanzaReAvversario  # avanti
-        else:  # Capturing nella zona di difesa
-            if arrivo[0] > partenza[0]:  # Mangiare verso dietro
+                return 0.5 / advKingDistance  #forward
+            
+        else:  # Capturing in defensive zone
+            if arrival[0] > start[0]:  # Back capture
                 return 0.91
-            elif arrivo[0] == partenza[0]:  # Mangiare orizzontale
+            elif arrival[0] == start[0]:  # Horizontal capture
                 return 0.90
-            elif (partenza[0] == arrivo[0] + 1 and arrivo[1] - 1 == partenza[1]) or (
-                partenza[0] == arrivo[0] + 1 and arrivo[1] + 1 == partenza[1]
+            elif (start[0] == arrival[0] + 1 and arrival[1] - 1 == start[1]) or (
+                start[0] == arrival[0] + 1 and arrival[1] + 1 == start[1]
             ):
-                return 0.85  # Mangiare in avanti se l'avv si trova davanti o in alto a destra o in alto a sinistra
+                return 0.85  # Capture forward if the opponent's pawn is in front, in the upper right or upper left position
             else:
-                return 0.45 / distanzaReAvversario  # Mangiare due caselle verso avanti
+                return 0.45 / advKingDistance  # To capture two squares forward
 
     elif "nonCapturing" in action_considerata:
-        # Si predilige una mossa che garantisce il check di tipo 1/se si ha questa mossa implica che si è in una situazione di scacco
+    
+        #Favor a move that guarantees a type 1 check / Having this move implies that you are in a checkmate situation        
         if checkType1:
-            if arrivo in checkObj_list:
+            if arrival in checkObj_list:
                 for element in check_list:
                     if state[element]=='o':
                         return 0.92
@@ -475,50 +469,41 @@ def h(state, action_considerata):
 
         # Si controlla se
 
-        distanza_minima = math.inf
+        minimumDistance = math.inf
         if not possibleCheck:
-            distanza_minima = distanzaReAvversario
+            minimumDistance = advKingDistance
         else:
-            if partenza in checkObj_list:
+            if start in checkObj_list:
                 return 0
 
             for element in checkObj_list:
-                tmp = abs(partenza[0] - element[0]) + abs(partenza[1] - element[1])
-                if distanza_minima > tmp:
-                    distanza_minima = tmp
+                tmp = abs(start[0] - element[0]) + abs(start[1] - element[1])
+                if minimumDistance > tmp:
+                    minimumDistance = tmp
 
-            if distanza_minima == math.inf:
+            if minimumDistance == math.inf:
                 for element in encirclement_list:
-                    tmp = abs(partenza[0] - element[0]) + abs(partenza[1] - element[1])
-                    if distanza_minima > tmp:
-                        distanza_minima = tmp
+                    tmp = abs(start[0] - element[0]) + abs(start[1] - element[1])
+                    if minimumDistance > tmp:
+                        minimumDistance = tmp
 
-        if suicide(state, arrivo[0], arrivo[1]):  
+        if suicide(state, arrival[0], arrival[1]):  
             return -0.5
-        elif arrivo[0]>=defensive_line:
-            return 0.01/distanzaReAvversario
-        elif arrivo[0]<defensive_line: 
-            return 0.01/distanzaReAvversario  #è pesata in maniera tale che si "forzi" l'accerchiamento del re avversario 
+        elif arrival[0]>=defensive_line:
+            return 0.01/advKingDistance
+        elif arrival[0]<defensive_line: 
+            return 0.01/advKingDistance  #It is weighted in such a way that it 'forces' the encirclement of the opponent's king
         
     elif ("exchange" in action_considerata):
-        return 0 #considere numero di pedine avversarie 
+        return 0 #TODO: To consider the number of opponent's pawns
         
     return 0
 
-def dynamic_cutoff(game, state):
-    initial_piece_count = len(game.initial.occupiedPos(state.to_move))
-    total_pieces = len(state.occupiedPos(state.to_move))
-    if total_pieces == initial_piece_count:
-        return 0
-    elif total_pieces <= initial_piece_count and total_pieces > initial_piece_count // 2:
-        return 2
-    else:
-        return 4
 
 
 
 
-#----------------------------------_AVVERSARIO ----------------------------------------------------------------
+#----------------------------------ADV ----------------------------------------------------------------
 def h_alphabeta_search_adv(game, state, cutoff=cutoff_depth(2)):
     """Search game to determine best action; use alpha-beta pruning.
     As in [Figure 5.7], this version searches all the way to the leaves."""
