@@ -206,6 +206,7 @@ dynamic_c = 0
 captures = 0
 initial_adv_piece_count = 28
 current_pieces_adv=28
+flag = False  #la flag serve se con il cutoff alto puo mangiare il re ma non lo fa, riportando di fatto il cutoff a 0 
 
 def h_alphabeta_search(game, state, cutoff=cutoff_depth(dynamic_c)):
     """Search game to determine best action; use alpha-beta pruning.
@@ -227,20 +228,24 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(dynamic_c)):
     global checkType1
     global possibleCheck
     global king_in_danger
+    global dynamic_c
     considered_moves = []  #A list to store (move, utility) tuples, essentially a list of considered moves. 
     updateEncirclementList()
+   
     
     current_pieces_adv = initial_adv_piece_count-captures
-    dynamic_c = dynamic_cutoff(current_pieces_adv)    
+  
+    dynamic_c = dynamic_cutoff(current_pieces_adv)
+    
 
     @cache1
-    def max_value(state, player, alpha, beta, depth, action_considerata, defensive_line):
+    def max_value(state, player, alpha, beta, depth, action, defensive_line):
         global possibleCheck
         v2 = -infinity
         if game.is_terminal(state):
             return game.utility(state, player), None
         if cutoff(game, state, depth):
-            return h(state, action_considerata), None
+            return h(state, action), None
         v, move = -infinity, None
         for a in game.actions(state):
             v2, _ = min_value(game.result(state, a), player, alpha, beta, depth + 1, a, defensive_line)
@@ -260,12 +265,12 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(dynamic_c)):
         return v, move
 
     @cache1
-    def min_value(state, player, alpha, beta, depth, action_considerata, defensive_line):
+    def min_value(state, player, alpha, beta, depth, action, defensive_line):
         v2 = -infinity
         if game.is_terminal(state):
             return game.utility(state, player), None
         if cutoff(game, state, depth):
-            return h(state, action_considerata), None
+            return h(state, action), None
         v, move = +infinity, None
         for a in game.actions(state):
             v2, _ = max_value(game.result(state, a), player, alpha, beta, depth + 1, a, defensive_line)
@@ -370,24 +375,25 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(dynamic_c)):
         king_in_danger = False
 
     utility, chosen_move = max_value(state, player, -infinity, +infinity, 0, None, defensive_line) 
+
+        
     sorted_moves = sorted(considered_moves, key=lambda x: x[1])   
 
     # Print considered moves and utilities
-    print("Considered Moves and Utilities [Sorted by utility]:")
+    """print("Considered Moves and Utilities [Sorted by utility]:")
     for move, utility in sorted_moves:
-        print(f"Move: {move}, Utility: {utility}")
+        print(f"Move: {move}, Utility: {utility}")"""
 
     print("Number of considered moves: ", len(considered_moves))
     considered_moves = []
     # Print chosen move and utility
-    print(f"\nChosen Move: {chosen_move}, Utility: {utility}")
+    print(f"\nChosen Move: {chosen_move}, Utility: {utility}") 
     
     if 'capturing' in chosen_move: 
         captures+=1
-        print('capture completed -> captures: ', captures)
+        print('capture completed -> captures: ', captures) 
         
     print("\nCUTOFF: " , dynamic_c )  
-    
     
     print("current adv pieces : ", current_pieces_adv)
 
@@ -396,34 +402,45 @@ def h_alphabeta_search(game, state, cutoff=cutoff_depth(dynamic_c)):
 
 def suicide(state,arriving_r,arriving_c):
     adv_pawns = ['x','K']
-    if state[(arriving_r -2, arriving_c)] in adv_pawns or state[(arriving_r-1, arriving_c-1)]  in adv_pawns or state[(arriving_r-1, arriving_c+1)]  in adv_pawns: 
+    if state[(arriving_r -2, arriving_c)] in adv_pawns or state[(arriving_r-1, arriving_c-1)]  in adv_pawns or state[(arriving_r-1, arriving_c+1)]  in adv_pawns or state[(arriving_r,arriving_c+2)] in adv_pawns or state[(arriving_r,arriving_c-2)] in adv_pawns: 
         return True
     return False
 
 def playerStrategy(game, state):
     global current_pieces_adv
-    #cutOff = 0 
+    global flag
     value, move = h_alphabeta_search(game,state,cutoff_depth(dynamic_cutoff(current_pieces_adv)))
+    if value >0.85 and 'capturing' not in move:
+        flag = True
+        print("\n MOSSA FLAGGATA LESGOSKI LESSGO...")
+        value, move = h_alphabeta_search(game,state,cutoff_depth(dynamic_cutoff(current_pieces_adv)))
+
     return move
+
     
 
 def dynamic_cutoff(current_pieces_adv):
     global initial_adv_piece_count
-
-    if current_pieces_adv <= initial_adv_piece_count and current_pieces_adv > initial_adv_piece_count // 3 :  
+    global flag
+    if flag:
+        flag = False
         return 0
-    elif current_pieces_adv <= initial_adv_piece_count // 3:
-        print("CAMBIO CUTOFF = 2")
-        return 2
+    else:
+        if current_pieces_adv <= initial_adv_piece_count and current_pieces_adv > initial_adv_piece_count // 3 :  
+            return 0
+        elif current_pieces_adv <= initial_adv_piece_count // 3 and current_pieces_adv > initial_adv_piece_count//4:
+            return 2
+        elif current_pieces_adv <= initial_adv_piece_count // 4:
+            return 4
     return 1 
         
 
 #______________________________HEURISTIC________________________________________________________________
 
 
-def h(state, action_considerata):
-    start = action_considerata[1]
-    arrival = action_considerata[2]
+def h(state, action):
+    start = action[1]
+    arrival = action[2]
 
     global kingAdv_position
     global king_in_danger
@@ -441,7 +458,7 @@ def h(state, action_considerata):
     )
 
     if advKingDistance == 0:
-        return 0
+        return 1
 
     #Handling the movement of pawns that are already in a check position (if they move, check would be lost)
     if start in check_list:
@@ -451,10 +468,11 @@ def h(state, action_considerata):
         if start in checkObj_list:
             return 0
 
-    if "capturing" in action_considerata:  # Capturing attacking zone
+    if "capturing" in action:  # Capturing attacking zone
 
         if king_in_danger:
-            return 0.98 / kingDistance
+            return 0.98
+                
 
         #Favor a move that guarantees a type 1 check / Having this move implies that you are in a checkmate situation        
         if checkType1:
@@ -485,14 +503,14 @@ def h(state, action_considerata):
             else:
                 return 0.45 / advKingDistance  # To capture two squares forward
 
-    elif "nonCapturing" in action_considerata:
+    elif "nonCapturing" in action:
     
         #Favor a move that guarantees a type 1 check / Having this move implies that you are in a checkmate situation        
         if checkType1:
             if arrival in checkObj_list:
                 for element in check_list:
                     if state[element]=='o':
-                        return 0.92
+                        return 0.92//advKingDistance
                 return 0
 
         minimumDistance = math.inf
@@ -514,14 +532,15 @@ def h(state, action_considerata):
                         minimumDistance = tmp
 
         if suicide(state, arrival[0], arrival[1]):  
-            return -0.85
+            return -0.91
         elif arrival[0]>=defensive_line:
             return 0.01/advKingDistance
         elif arrival[0]<defensive_line: 
             return 0.02/advKingDistance  #It is weighted to 'force' the encirclement of the opponent's king
+         
         
     #2nd GOAL 
-    elif ("exchange" in action_considerata) and (current_pieces_adv <= initial_adv_piece_count//6):
+    elif ("exchange" in action) and (current_pieces_adv <= initial_adv_piece_count//6):
         if (arrival[0]<defensive_line):
             return 0.1/advKingDistance 
         elif(arrival[0]>=defensive_line):

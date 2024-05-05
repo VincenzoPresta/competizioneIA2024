@@ -15,7 +15,7 @@ import sys
 
 # EXAMPLE VERSION
 # #######################
-import playerExampleAlpha as playerXmodule
+import playerLorena as playerXmodule
 import playingStrategies as playerOmodule
 # #######################
 
@@ -182,7 +182,7 @@ class KingCourt(Game):
 
 
 def play_game(game, verbose=False, passoPasso = False, timeout = 3):
-    """Play a turn-taking game. `strategies` is a {player_name: function} dict,
+    """Play a turn-taking game. `straftegies` is a {player_name: function} dict,
     where function(state, game) is used to get the player's move."""
     state = game.initial
     number_of_move = 0
