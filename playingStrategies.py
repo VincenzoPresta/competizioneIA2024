@@ -15,8 +15,8 @@ pawn4line = {
     8: 7,
     9: 6,
     10: 5,
-    11: 3,
-    12: 2,
+    11: 4,
+    12: 3,
     13: 2,
     14: 1,
 }
@@ -32,10 +32,6 @@ checkType1 = False
 check = False
 
 king_in_danger = False
-
-
-
-
 
 # è la lista delle posizioni dell'intorno grande del re in modo che non si debbano calcolare ad ogni verifica di check ma si genera la lista ogni volta che il re viene spostato
 encirclement_list = []
