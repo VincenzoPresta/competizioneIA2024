@@ -16,7 +16,7 @@ import sys
 # EXAMPLE VERSION
 # #######################
 import playerExampleRandom as playerXmodule
-import playingStrategies as playerOmodule
+import playingStrategies_final as playerOmodule
 # #######################
 
 
